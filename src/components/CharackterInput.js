@@ -7,10 +7,8 @@ export default styled.input`
     display: flex;
     width: 290px;
     padding: 0 10px 0 10px;
-    background: #0061A7;
-    border: 5px solid #FCFCFC;
-    box-sizing: border-box;
-    border-radius: 5px;
+    background: transparent;
+    border: none;
     font-family: Roboto;
     font-style: normal;
     font-weight: 900;
