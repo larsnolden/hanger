@@ -140,14 +140,25 @@ export default () => {
         if (state.gameStatus === 'running') {
             //  check if char is correct and was not entered yet
             if (state.searchedWord.includes(char) && !state.inputValue.includes(char)) {
+                let matchingIndices = state.searchedWord.split('').map((currentChar, index) => {
+                    if (currentChar === char) return index
+                });
+
                 let newInputValue = state.inputValue
                     .split('')
-                    .map((existingChar, index) => state.searchedWord.indexOf(char) === index ? char : existingChar).join('');
+                    .map((currentChar, index) => {
+                        if (matchingIndices.includes(index)) return state.searchedWord[index];
+                        return currentChar;
+                    })
+                    .join('');
+                // let newInputValue = state.inputValue
+                //     .split('')
+                //     .map((existingChar, index) => state.searchedWord.indexOf(char) === index ? char : existingChar).join('');
                 dispatcher('setInputValue', newInputValue);
 
                 if (state.searchedWord === newInputValue) {
                     //  win
-                    if(state.currentScore + 1 >= state.highScore) {
+                    if (state.currentScore + 1 >= state.highScore) {
                         myStorage.setItem('highscore', state.currentScore + 1);
                         dispatcher('setGameStatus', 'newHighscore')
                     } else dispatcher('setGameStatus', 'win');
@@ -162,7 +173,7 @@ export default () => {
                 if (state.hangmanCount + 1 > 5) {
                     //  loose
                     dispatcher('setGameStatus', 'loss');
-                    dispatcher('resetGameState')
+                    dispatcher('resetGameState');
                 }
             }
         }
