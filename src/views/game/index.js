@@ -2,6 +2,7 @@ import React from 'react';
 import styled from  '@emotion/styled';
 
 import CharackterInput from 'components/CharackterInput';
+import Hangman from 'components/Hangman';
 
 const Wrapper = styled.div`
     display: flex;
@@ -21,11 +22,16 @@ const Heading = styled.div`
     user-select: none;
 `;
 
+const Text = styled.div`
+
+`;
+
 export default () =>
     <Wrapper>
         <Heading>
             Hanger
         </Heading>
-        <CharackterInput value="_____" />
+        <Hangman stage={5} />
+        <CharackterInput value="start" />
     </Wrapper>
 ;
