@@ -204,7 +204,7 @@ export default () => {
                 <CharacterInput
                     onKeyPress={evt => handleUserInput(evt.key)}
                     value={state.inputValue}
-                    onClick={startGame} />
+                    onClick={state.gameStatus !== 'running' ? startGame : null} />
             </GameContainer>
         </Wrapper>
     );
