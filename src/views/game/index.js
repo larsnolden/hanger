@@ -1,7 +1,7 @@
 import React, {
     useEffect,
-    useState,
-  } from 'react';
+    useReducer,
+} from 'react';
 import styled from '@emotion/styled';
 
 import CharacterInput from 'components/CharacterInput';
@@ -27,7 +27,7 @@ const Heading = styled.div`
     user-select: none;
 `;
 
-const GameOver = styled.div`
+const gameLost = styled.div`
     color: #C34034;
     font-family: Roboto;
     font-weight: 900;
@@ -44,50 +44,136 @@ const GameContainer = styled.div`
     justify-content: space-around;
 `;
 
+const ScoreText = styled.div`
+    color: #FCFCFC;
+    font-family: Roboto;
+    font-weight: 900;
+    font-size: 36px;
+    letter-spacing: 0.05em;
+    user-select: none;
+    text-align: center;
+`;
+
+const WinText = styled.div`
+    color: #04C19A;
+    font-family: Roboto;
+    font-weight: 900;
+    font-size: 48px;
+    letter-spacing: 0.05em;
+    user-select: none;
+    text-align: center;
+`;
+
+const LossText = styled.div`
+    color: #C34034;
+    font-family: Roboto;
+    font-weight: 900;
+    font-size: 48px;
+    letter-spacing: 0.05em;
+    user-select: none;
+`;
+
 const getRandomWord = () => possibleWords.words[Math.round(Math.random(possibleWords.words.length))];
+const myStorage = window.localStorage;
+
+const initialState = {
+    hangmanCount: 0,
+    gameStatus: 'initial',
+    highScore: 0,
+    inputValue: 'Click to start',
+    searchedWord: '',
+    currentScore: 0,
+}
+
+function reducer(state, action) {
+    switch (action.type) {
+        case 'setHangmanCount':
+            return { ...state, hangmanCount:  action.value };
+        case 'setGameStatus':
+            return { ...state, gameStatus: action.value };
+        case 'setHighscore':
+            return { ...state, highScore: action.value };
+        case 'setInputValue':
+            return { ...state, inputValue: action.value };
+        case 'setSearchedWord':
+            return { ...state, searchedWord: action.value };
+        case 'increaseCurrentScore':
+            return { ...state, currentScore: state.currentScore + 1 };
+        case 'resetGameState':
+            return { ...initialState, highScore: state.highScore, gameStatus: state.gameStatus };
+        case 'resetGameStateContinue':
+            return { ...initialState, highScore: state.highScore, currentScore: state.currentScore, gameStatus: state.gameStatus };
+        default:
+            return state;
+    }
+}
+
+const GameDisplay = ({ status, ...restProps }) => {
+    switch (status) {
+        case 'running': 
+            return <Hangman stage={restProps.hangmanCount} />;
+        case 'win':
+            return <WinText>Awesome!<br/> keep going</WinText>;
+        case 'newHighscore':
+            return <WinText>!!! New High Score!!!</WinText>;
+        case 'loss':
+            return <LossText>Game Over</LossText>;
+        default:
+            return <div />
+    }
+}
 
 export default () => {
-    const [hangmanCount, setHangmanCount] = useState(0);
-    const [searchedWord, setSearchedWord] = useState("");
-    const [inputValue, setInputValue] = useState("");
-    const [gameOver, setGameOver] = useState(false);
-    const [gameWon, setGameWon] = useState(false);
-    const [userFocused, setUserFocused] = useState(false);
+    const [state, dispatch] = useReducer(reducer, initialState);
 
-    //  asynchronously update state
+    const dispatcher = (type, value) => dispatch({ type, value })
+
+    //  load highscore form local storage
     useEffect(() => {
-        if(!gameOver && !gameWon) {
-            if(!userFocused) setInputValue('click to start');
-            if(!searchedWord) setSearchedWord(getRandomWord);
-            if(userFocused && inputValue.length !== searchedWord.length) {
-                setInputValue([...Array(searchedWord.length)].map(() => "_").join(''));
-            }
-        } else if (gameOver) {
-            setInputValue('Game Over');
-        } else if (gameWon) {
-            setInputValue('You Won!');
+        if (!state.highScore) {
+            const localStorageHighscore = myStorage.getItem('highscore');
+            dispatcher('setHighscore', localStorageHighscore);
         }
-    })
-
-    useEffect(() => {
-        console.log(searchedWord, inputValue, searchedWord == inputValue)
-        if ((hangmanCount < 5) &&  userFocused && (searchedWord == inputValue)) setGameWon(true);
-        if (hangmanCount >= 5) setGameOver(true);
-        console.log(gameWon)
     });
 
     function handleUserInput(char) {
-        if (!gameOver && !gameWon) {
-            if (searchedWord.includes(char)) {
-                let charIndex = searchedWord.indexOf(char);
-    
-                //  replace underscore with guessed char
-                let newInputValue = inputValue.split('').map((existingChar, index  )=> charIndex  === index ? char : existingChar).join('');  
-                setInputValue(newInputValue);
-            } else if (!searchedWord.includes(char)) {
-                setHangmanCount(hangmanCount + 1);
+        if (state.gameStatus === 'running') {
+            //  check if char is correct and was not entered yet
+            if (state.searchedWord.includes(char) && !state.inputValue.includes(char)) {
+                let newInputValue = state.inputValue
+                    .split('')
+                    .map((existingChar, index) => state.searchedWord.indexOf(char) === index ? char : existingChar).join('');
+                dispatcher('setInputValue', newInputValue);
+
+                if (state.searchedWord === newInputValue) {
+                    //  win
+                    if(state.currentScore + 1 >= state.highScore) {
+                        myStorage.setItem('highscore', state.currentScore + 1);
+                        dispatcher('setGameStatus', 'newHighscore')
+                    } else dispatcher('setGameStatus', 'win');
+                    //  reset state, except for current Score, highScore and gameStatus
+                    dispatcher('increaseCurrentScore');
+                    dispatcher('resetGameStateContinue');
+                }
+            } else {
+                const newHangmanCount = state.hangmanCount + 1;
+                dispatcher('setHangmanCount', newHangmanCount) ;
+
+                if (state.hangmanCount + 1 > 5) {
+                    //  loose
+                    dispatcher('setGameStatus', 'loss');
+                    dispatcher('resetGameState')
+                }
             }
         }
+    }
+
+    function startGame() {
+        dispatcher('setGameStatus', 'running');
+        const searchedWord = getRandomWord();
+        dispatcher('setSearchedWord', searchedWord);
+        dispatcher('setInputValue', [...Array(searchedWord.length)].map(() => "_").join(''));
+        console.log(`͠≖ ͜ʖ͠≖) `, searchedWord);
     }
 
     return (
@@ -95,14 +181,18 @@ export default () => {
             <Heading>
                 Hanger
             </Heading>
+            <ScoreText>
+                Highscore: {state.highScore}
+            </ScoreText>
+            <ScoreText>
+                Current Streak: {state.currentScore}
+            </ScoreText>
             <GameContainer>
-                <Hangman stage={hangmanCount} /> 
+                <GameDisplay  status={state.gameStatus} hangmanCount={state.hangmanCount} />
                 <CharacterInput
-                        gameWon={gameWon}
-                        gameOver={gameOver}
-                        onKeyPress={evt => handleUserInput(evt.key)}
-                        value={inputValue} 
-                        onClick={() => setUserFocused(true)}/>
+                    onKeyPress={evt => handleUserInput(evt.key)}
+                    value={state.inputValue}
+                    onClick={startGame} />
             </GameContainer>
         </Wrapper>
     );
