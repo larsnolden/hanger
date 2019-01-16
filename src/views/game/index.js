@@ -4,7 +4,7 @@ import React, {
   } from 'react';
 import styled from '@emotion/styled';
 
-import CharackterInput from 'components/CharackterInput';
+import CharacterInput from 'components/CharacterInput';
 import Hangman from 'components/Hangman';
 
 import possibleWords from 'assets/possibleWords';
@@ -40,6 +40,8 @@ const GameContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
+    height: 400px;
+    justify-content: space-around;
 `;
 
 const getRandomWord = () => possibleWords.words[Math.round(Math.random(possibleWords.words.length))];
@@ -48,19 +50,34 @@ export default () => {
     const [hangmanCount, setHangmanCount] = useState(0);
     const [searchedWord, setSearchedWord] = useState("");
     const [inputValue, setInputValue] = useState("");
-    const [gameOver, setGaneOver] = useState(false);
+    const [gameOver, setGameOver] = useState(false);
+    const [gameWon, setGameWon] = useState(false);
+    const [userFocused, setUserFocused] = useState(false);
 
     //  asynchronously update state
     useEffect(() => {
-        if(!searchedWord) setSearchedWord(getRandomWord);
-        if(!inputValue) setInputValue([...Array(searchedWord.length)].map(() => "_").join(''));
-        console.log('searchedWord', searchedWord);
-        console.log('inputValue', inputValue);
-        if (hangmanCount >= 5) setGaneOver(true);
+        if(!gameOver && !gameWon) {
+            if(!userFocused) setInputValue('click to start');
+            if(!searchedWord) setSearchedWord(getRandomWord);
+            if(userFocused && inputValue.length !== searchedWord.length) {
+                setInputValue([...Array(searchedWord.length)].map(() => "_").join(''));
+            }
+        } else if (gameOver) {
+            setInputValue('Game Over');
+        } else if (gameWon) {
+            setInputValue('You Won!');
+        }
     })
 
+    useEffect(() => {
+        console.log(searchedWord, inputValue, searchedWord == inputValue)
+        if ((hangmanCount < 5) &&  userFocused && (searchedWord == inputValue)) setGameWon(true);
+        if (hangmanCount >= 5) setGameOver(true);
+        console.log(gameWon)
+    });
+
     function handleUserInput(char) {
-        if (!gameOver) {
+        if (!gameOver && !gameWon) {
             if (searchedWord.includes(char)) {
                 let charIndex = searchedWord.indexOf(char);
     
@@ -78,11 +95,15 @@ export default () => {
             <Heading>
                 Hanger
             </Heading>
-            <Hangman stage={hangmanCount} /> 
-            <CharackterInput
-                    showRedText={gameOver}
-                    onKeyPress={evt => handleUserInput(evt.key)}
-                    value={gameOver ? "Game Over" : inputValue } />
+            <GameContainer>
+                <Hangman stage={hangmanCount} /> 
+                <CharacterInput
+                        gameWon={gameWon}
+                        gameOver={gameOver}
+                        onKeyPress={evt => handleUserInput(evt.key)}
+                        value={inputValue} 
+                        onClick={() => setUserFocused(true)}/>
+            </GameContainer>
         </Wrapper>
     );
 };
