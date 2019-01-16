@@ -14,7 +14,7 @@ export default styled.input`
     font-weight: 900;
     font-size: 60px;
     letter-spacing: 0.2em;
-    text-shadow: 0 0 0 #FCFCFC, 0px 1px 2px rgba(0, 0, 0, 0.24), 0px 1px 3px rgba(0, 0, 0, 0.12);
+    text-shadow: ${props => props.showRedText ?  '0 0 0 #C34034' : '0 0 0 #FCFCFC'} , 0px 1px 2px rgba(0, 0, 0, 0.24), 0px 1px 3px rgba(0, 0, 0, 0.12);
     outline: none;
     color: transparent;
     text-align: center;
