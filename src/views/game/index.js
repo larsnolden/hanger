@@ -73,7 +73,7 @@ const LossText = styled.div`
     user-select: none;
 `;
 
-const getRandomWord = () => possibleWords.words[Math.round(Math.random(possibleWords.words.length))];
+const getRandomWord = () => possibleWords.words[Math.floor(Math.random() * Math.floor(possibleWords.words.length))];
 const myStorage = window.localStorage;
 
 const initialState = {
