@@ -14,14 +14,10 @@ export default styled.input`
     font-weight: 900;
     font-size: 60px;
     letter-spacing: 0.2em;
-    text-shadow: ${props => {
-        const { gameWon, gameOver } = props;
-        if (gameWon) return '0 0 0 #04C19A';
-        else if (gameOver) return '0 0 0 #C34034';
-        return  '0 0 0 #FCFCFC';
-    }} , 0px 1px 2px rgba(0, 0, 0, 0.24), 0px 1px 3px rgba(0, 0, 0, 0.12);
+    text-shadow:  0 0 0 #FCFCFC, 0px 1px 2px rgba(0, 0, 0, 0.24), 0px 1px 3px rgba(0, 0, 0, 0.12);
     outline: none;
     color: transparent;
     text-align: center;
     width: 100%;
+    user-select: none;
 `;
