@@ -140,10 +140,15 @@ export default () => {
         if (state.gameStatus === 'running') {
             //  check if char is correct and was not entered yet
             if (state.searchedWord.includes(char) && !state.inputValue.includes(char)) {
-                let matchingIndices = state.searchedWord.split('').map((currentChar, index) => {
+
+                //  get indices where char matches searched Word
+                let matchingIndices = state.searchedWord
+                .split('')
+                .map((currentChar, index) => {
                     if (currentChar === char) return index
                 });
 
+                //  reveal matched char in input value
                 let newInputValue = state.inputValue
                     .split('')
                     .map((currentChar, index) => {
@@ -151,9 +156,7 @@ export default () => {
                         return currentChar;
                     })
                     .join('');
-                // let newInputValue = state.inputValue
-                //     .split('')
-                //     .map((existingChar, index) => state.searchedWord.indexOf(char) === index ? char : existingChar).join('');
+
                 dispatcher('setInputValue', newInputValue);
 
                 if (state.searchedWord === newInputValue) {
