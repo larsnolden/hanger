@@ -1,12 +1,11 @@
-import React from  'react';
-import styled from  '@emotion/styled';
+import React from 'react';
+import styled from '@emotion/styled';
 
 // set width dynamically based on char number
 //    box-shadow: inset 0px 3px 6px rgba(0, 0, 0, 0.1), inset 0px 10px 20px rgba(0, 0, 0, 0.15);
 export default styled.input`
     display: flex;
-    width: 290px;
-    padding: 0 10px 0 10px;
+    width: 100%;
     background: transparent;
     border: none;
     font-family: Roboto;
@@ -20,4 +19,7 @@ export default styled.input`
     text-align: center;
     width: 100%;
     user-select: none;
+    @media screen and (max-width: 900px) {
+        font-size: 34px;
+    }
 `;

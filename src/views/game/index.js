@@ -27,21 +27,11 @@ const Heading = styled.div`
     user-select: none;
 `;
 
-const gameLost = styled.div`
-    color: #C34034;
-    font-family: Roboto;
-    font-weight: 900;
-    font-size: 48px;
-    letter-spacing: 0.05em;
-    user-select: none;
-`;
-
 const GameContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 400px;
-    justify-content: space-around;
+    justify-content: center;
 `;
 
 const ScoreText = styled.div`
@@ -71,6 +61,12 @@ const LossText = styled.div`
     font-size: 48px;
     letter-spacing: 0.05em;
     user-select: none;
+`;
+
+const GameDisplayContainer = styled.div`
+    height: 200px;
+    display: flex;
+    align-items: center;
 `;
 
 const getRandomWord = () => possibleWords.words[Math.floor(Math.random() * Math.floor(possibleWords.words.length))];
@@ -121,7 +117,7 @@ const GameDisplay = ({ status, ...restProps }) => {
         default:
             return <div />
     }
-}
+};
 
 export default () => {
     const [state, dispatch] = useReducer(reducer, initialState);
@@ -202,7 +198,9 @@ export default () => {
                 Current Streak: {state.currentScore}
             </ScoreText>
             <GameContainer>
-                <GameDisplay  status={state.gameStatus} hangmanCount={state.hangmanCount} />
+                <GameDisplayContainer>
+                    <GameDisplay status={state.gameStatus} hangmanCount={state.hangmanCount} />
+                </GameDisplayContainer>
                 <CharacterInput
                     onKeyPress={evt => handleUserInput(evt.key)}
                     value={state.inputValue}
